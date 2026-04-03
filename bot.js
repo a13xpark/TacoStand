@@ -80,7 +80,7 @@ client.on("interactionCreate", async (interaction) => {
         iconURL: interaction.guild?.iconURL() || undefined,
       })
       .setTitle(name)
-      .setColor(0xff4500) // taco-orange 🌮
+      .setColor(0xff4500)
       .addFields(
         { name: "Price", value: price, inline: true },
         { name: "Seller", value: `${seller}`, inline: true }
@@ -88,19 +88,30 @@ client.on("interactionCreate", async (interaction) => {
       .setTimestamp()
       .setFooter({ text: "TacoStand • Click Purchase to buy" });
 
-    if (image) {
-      embed.setImage(image.url);
-    }
-
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`purchase_${seller.id}_${name}_${price}`)
         .setLabel("Purchase")
-        .setStyle(ButtonStyle.Danger) // red button like in your screenshot
-        .setEmoji("🌮")
+        .setStyle(ButtonStyle.Danger)
     );
 
-    await interaction.reply({ embeds: [embed], components: [row] });
+    const messagePayload = { embeds: [embed], components: [row] };
+
+    if (image) {
+      const isVideo = image.contentType?.startsWith("video/");
+      if (isVideo) {
+        // Videos can't display in embeds — attach as a file so it plays inline
+        messagePayload.files = [{ attachment: image.url, name: image.name }];
+      } else {
+        embed.setImage(image.url);
+      }
+    }
+
+    // Send as a channel message so the /upload command isn't visible
+    await interaction.channel.send(messagePayload);
+
+    // Acknowledge the command silently
+    await interaction.reply({ content: "✅ Listing posted!", ephemeral: true });
   }
 
   // ── Purchase button ──────────────────────────────────────────
