@@ -109,11 +109,11 @@ client.on("interactionCreate", async (interaction) => {
       }
     }
 
-    // Send as a channel message so the /upload command isn't visible
-    await interaction.channel.send(messagePayload);
-
-    // Acknowledge the command silently
+    // Acknowledge the command immediately (within 3s window)
     await interaction.reply({ content: "✅ Listing posted!", ephemeral: true });
+
+    // Then send the listing as a channel message
+    await interaction.channel.send(messagePayload);
   }
 
   // ── Purchase button ──────────────────────────────────────────
