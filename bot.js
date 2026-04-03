@@ -17,9 +17,9 @@ const {
 } = require("discord.js");
 
 // ─── CONFIG ───────────────────────────────────────────────────────
-const TOKEN = "YOUR_BOT_TOKEN_HERE";
-const CLIENT_ID = "YOUR_BOT_CLIENT_ID_HERE";
-const TICKET_CATEGORY_ID = ""; // (optional) category ID to put ticket channels in
+const TOKEN = process.env.TOKEN;
+const CLIENT_ID = process.env.CLIENT_ID;
+const TICKET_CATEGORY_ID = process.env.TICKET_CATEGORY_ID || ""; // optional
 // ──────────────────────────────────────────────────────────────────
 
 const client = new Client({
