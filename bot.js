@@ -67,6 +67,7 @@ client.once("ready", async () => {
 
 // ─── Handle /upload ──────────────────────────────────────────────
 client.on("interactionCreate", async (interaction) => {
+ try {
   // ── Slash command ────────────────────────────────────────────
   if (interaction.isChatInputCommand() && interaction.commandName === "upload") {
     const name = interaction.options.getString("name");
@@ -100,8 +101,9 @@ client.on("interactionCreate", async (interaction) => {
     if (image) {
       const isVideo = image.contentType?.startsWith("video/");
       if (isVideo) {
-        // Videos can't display in embeds — attach as a file so it plays inline
-        messagePayload.files = [{ attachment: image.url, name: image.name }];
+        // Link the video URL directly — avoids Discord's upload size limit
+        // Send the embed first, then the video URL as a separate message so it embeds/plays
+        messagePayload.content = image.url;
       } else {
         embed.setImage(image.url);
       }
@@ -229,6 +231,16 @@ client.on("interactionCreate", async (interaction) => {
     setTimeout(() => {
       channel.delete().catch(console.error);
     }, 5000);
+  }
+ } catch (err) {
+    console.error("Interaction error:", err);
+    // Try to let the user know something went wrong
+    const reply = { content: "❌ Something went wrong, try again.", ephemeral: true };
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp(reply).catch(() => {});
+    } else {
+      await interaction.reply(reply).catch(() => {});
+    }
   }
 });
 
